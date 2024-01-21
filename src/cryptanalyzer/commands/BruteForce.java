@@ -6,25 +6,66 @@ import cryptanalyzer.entity.ResultCode;
 import cryptanalyzer.utils.CaesarCipher;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Map;
 import java.util.StringTokenizer;
 import java.util.TreeMap;
 
-public class BruteForce implements Action{
+public class BruteForce implements Action {
     @Override
     public Result execute(String[] params) {
-        if(params.length > 3) {
+        if(params[1] != null) {
             executeWithRepresentative(params);
+        } else {
+            executeWithoutRepresentative(Path.of(params[0]), Path.of(params[2]));
         }
         return new Result("", ResultCode.OK);
     }
 
+    private void executeWithoutRepresentative(Path srcFile, Path destFile) {
+        for(int key = 1; key < Const.ALPHABET.length; key++) {
+            CaesarCipher.applyCipherToText(srcFile, destFile, -key);
+            if(keyIsValidated(destFile)) {
+                return;
+            }
+        }
+    }
+
     /**
-     *
-     * @param params src file, file with unencrypted representative text, dest file
+     * Check correctness of spaces and punctuation marks
      */
+    private boolean keyIsValidated(Path destFile) {
+        try(BufferedReader bufferedReader = Files.newBufferedReader(destFile)) {
+            while(bufferedReader.ready()) {
+                String line = bufferedReader.readLine();
+                if(!line.contains(" ")) {
+                    return false;
+                }
+                StringTokenizer tokenizer = new StringTokenizer(line, " ");
+                while(tokenizer.hasMoreTokens()) {
+                    String word = tokenizer.nextToken();
+                    if(startsWithForbiddenPunctuation(word) || endsWithForbiddenPunctuation(word)) {
+                        return false;
+                    }
+                }
+            }
+            return true;
+        } catch(IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private boolean endsWithForbiddenPunctuation(String word) {
+        return word.charAt(word.length() - 1) == Const.FORBIDDEN_END_PUNCTUATION_CHAR;
+    }
+
+    private boolean startsWithForbiddenPunctuation(String word) {
+        char startSymbol = word.charAt(0);
+        return Const.FORBIDDEN_START_PUNCTUATION.contains(startSymbol);
+    }
+
     private void executeWithRepresentative(String[] params) {
         Map<String, Integer> representativeMap = new TreeMap<>();
         addMetric(representativeMap, Path.of(params[1]));
