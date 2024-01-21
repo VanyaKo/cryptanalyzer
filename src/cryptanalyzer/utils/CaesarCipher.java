@@ -17,10 +17,10 @@ public class CaesarCipher {
             while(bufferedReader.ready()) {
                 char srcChar = (char) bufferedReader.read();
                 int srcCharIdx = getAlphabetIdx(srcChar);
-                if(srcCharIdx < 0) {
+                if(srcCharIdx == -1) {
                     continue;
                 }
-                int destCharIdx = applyCipherToChar(srcCharIdx, key);
+                int destCharIdx = getCipheredChar(srcCharIdx, key);
                 bufferedWriter.write(Const.ALPHABET[destCharIdx]);
             }
         } catch(Exception e) {
@@ -28,7 +28,7 @@ public class CaesarCipher {
         }
     }
 
-    private static int getAlphabetIdx(char srcChar) {
+    public static int getAlphabetIdx(char srcChar) {
         for(int i = 0; i < Const.ALPHABET.length; i++) {
             if(Character.toLowerCase(srcChar) == Const.ALPHABET[i]) {
                 return i;
@@ -37,7 +37,8 @@ public class CaesarCipher {
         return -1;
     }
 
-    private static int applyCipherToChar(int idx, int key) {
-        return Math.abs(idx + key) % Const.ALPHABET.length;
+    private static int getCipheredChar(int idx, int key) {
+        int alphabetLength = Const.ALPHABET.length;
+        return Math.abs(alphabetLength + idx + key) % alphabetLength;
     }
 }
