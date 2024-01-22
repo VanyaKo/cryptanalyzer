@@ -12,7 +12,7 @@ import static cryptanalyzer.consts.Const.STATISTICS_RANGE;
 
 public class Statistics {
     public static Map<Character, Double> computeFrequency(Path file) {
-        Map<Character, Double> map = new HashMap<>();
+        Map<Character, Double> frequencyMap = new HashMap<>();
         int thousandsCnt = 0;
         try(BufferedReader bufferedReader = Files.newBufferedReader(file)) {
             while(bufferedReader.ready()) {
@@ -24,10 +24,10 @@ public class Statistics {
                 thousandsCnt++;
                 for(char ch : buffer) {
                     ch = Character.toLowerCase(ch);
-                    if(map.containsKey(ch)) {
-                        map.put(ch, map.get(ch) + 1);
+                    if(frequencyMap.containsKey(ch)) {
+                        frequencyMap.put(ch, frequencyMap.get(ch) + 1);
                     } else {
-                        map.put(ch, 1.0);
+                        frequencyMap.put(ch, 1.0);
                     }
                 }
             }
@@ -35,14 +35,14 @@ public class Statistics {
             if(thousandsCnt < 1) {
                 throw new AppException("Cannot provide statistics because text size is less than 1_000");
             } else if(thousandsCnt > 1) {
-                for(Map.Entry<Character, Double> entry : map.entrySet()) {
+                for(Map.Entry<Character, Double> entry : frequencyMap.entrySet()) {
                     entry.setValue(entry.getValue() / (thousandsCnt * STATISTICS_RANGE));
                 }
-                System.out.println(map);
+                System.out.println(frequencyMap);
             }
         } catch(Exception e) {
             e.printStackTrace();
         }
-        return null;
+        return frequencyMap;
     }
 }
