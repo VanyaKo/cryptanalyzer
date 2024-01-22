@@ -9,6 +9,9 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
 import java.util.TreeMap;
@@ -16,12 +19,77 @@ import java.util.TreeMap;
 public class BruteForce implements Action {
     @Override
     public Result execute(String[] params) {
+        Path srcFile = Path.of(params[0]);
+        Path destFile = Path.of(params[2]);
         if(params[1] != null) {
-            executeWithRepresentative(params);
+            executeWithRepresentative(srcFile, Path.of(params[1]), destFile);
         } else {
-            executeWithoutRepresentative(Path.of(params[0]), Path.of(params[2]));
+            executeWithoutRepresentative(srcFile, destFile);
         }
         return new Result("", ResultCode.OK);
+    }
+
+    /**
+     * словарь наиболее частых начал слова (3 буквы)
+     */
+    private void executeWithRepresentative(Path srcFile, Path representativeFile, Path destFile) {
+        Map<String, Integer> wordBeginsRepresentativeMap = new TreeMap<>();
+        initMap(wordBeginsRepresentativeMap, representativeFile);
+        List<Map.Entry<String, Integer>> sortedRepresentative = getSortedList(wordBeginsRepresentativeMap);
+        TreeMap<Integer, Integer> scorePerKey = new TreeMap<>(Comparator.reverseOrder());
+        for(int key = 1; key < Const.ALPHABET.length; key++) {
+            CaesarCipher.applyCipherToText(srcFile, destFile, -key);
+            Map<String, Integer> wordBeginsBruteForceMap = new TreeMap<>();
+            initMap(wordBeginsBruteForceMap, destFile);
+            List<Map.Entry<String, Integer>> sortedBruteForce = getSortedList(wordBeginsBruteForceMap);
+            addScore(scorePerKey, key, sortedRepresentative, sortedBruteForce);
+        }
+        int resultKey = scorePerKey.firstEntry().getValue();
+        CaesarCipher.applyCipherToText(srcFile, destFile, resultKey);
+    }
+
+    private void addScore(Map<Integer, Integer> scorePerKey, int key,
+                          List<Map.Entry<String, Integer>> representative, List<Map.Entry<String, Integer>> bruteForce) {
+        int score = 0;
+        for(Map.Entry<String, Integer> entryRepresentative : representative) {
+            for(Map.Entry<String, Integer> entryBruteForce : bruteForce) {
+                if(entryBruteForce.getKey().equals(entryRepresentative.getKey())) {
+                    score += entryRepresentative.getValue();
+                }
+            }
+        }
+        scorePerKey.put(score, key);
+    }
+
+    private List<Map.Entry<String, Integer>> getSortedList(Map<String, Integer> map) {
+        return map.entrySet().stream()
+                .sorted(Collections.reverseOrder(Map.Entry.comparingByValue()))
+                .toList();
+    }
+
+    private void initMap(Map<String, Integer> map, Path file) {
+        try(BufferedReader bufferedReader = Files.newBufferedReader(file)) {
+            while(bufferedReader.ready()) {
+                putWords(map, bufferedReader.readLine());
+            }
+        } catch(Exception e) {
+            System.out.println("BruteForce.addMetric");
+        }
+    }
+
+    private void putWords(Map<String, Integer> map, String line) {
+        StringTokenizer tokenizer = new StringTokenizer(line, " ");
+        while(tokenizer.hasMoreTokens()) {
+            String word = tokenizer.nextToken();
+            if(word.length() >= 3) {
+                String wordBegin = word.toLowerCase().substring(0, 3);
+                if(map.containsKey(wordBegin)) {
+                    map.put(wordBegin, map.get(wordBegin) + 1);
+                } else {
+                    map.put(wordBegin, 1);
+                }
+            }
+        }
     }
 
     private void executeWithoutRepresentative(Path srcFile, Path destFile) {
@@ -33,9 +101,6 @@ public class BruteForce implements Action {
         }
     }
 
-    /**
-     * Check correctness of spaces and punctuation marks
-     */
     private boolean keyIsValidated(Path destFile) {
         try(BufferedReader bufferedReader = Files.newBufferedReader(destFile)) {
             while(bufferedReader.ready()) {
@@ -64,40 +129,5 @@ public class BruteForce implements Action {
     private boolean startsWithForbiddenPunctuation(String word) {
         char startSymbol = word.charAt(0);
         return Const.FORBIDDEN_START_PUNCTUATION.contains(startSymbol);
-    }
-
-    private void executeWithRepresentative(String[] params) {
-        Map<String, Integer> representativeMap = new TreeMap<>();
-        addMetric(representativeMap, Path.of(params[1]));
-        Map<String, Integer> map = new TreeMap<>();
-        for(int i = 0; i < Const.ALPHABET.length; i++) {
-            CaesarCipher.applyCipherToText(Path.of(params[0]), Path.of(params[2]), -i);
-            addMetric(map, Path.of(params[1]));
-        }
-    }
-
-    private void addMetric(Map<String, Integer> map, Path dest) {
-        try(BufferedReader bufferedReader = Files.newBufferedReader(dest)) {
-            while(bufferedReader.ready()) {
-                putUniqueWords(map, bufferedReader.readLine());
-            }
-        } catch(Exception e) {
-            System.out.println("BruteForce.addMetric");
-        }
-    }
-
-    private void putUniqueWords(Map<String, Integer> map, String line) {
-        StringTokenizer tokenizer = new StringTokenizer(line, " ");
-        while(tokenizer.hasMoreTokens()) {
-            String word = tokenizer.nextToken();
-            if(word.length() >= 3) {
-                String wordBegin = word.toLowerCase().substring(0, 3);
-                if(map.containsKey(wordBegin)) {
-                    map.put(wordBegin, map.get(wordBegin) + 1);
-                } else {
-                    map.put(wordBegin, 0);
-                }
-            }
-        }
     }
 }
