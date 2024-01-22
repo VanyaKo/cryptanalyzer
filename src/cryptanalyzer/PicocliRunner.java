@@ -44,7 +44,7 @@ public class PicocliRunner implements Runnable {
             @Parameters(paramLabel = "<src file>", description = "source file with encrypted text") String src,
             @Option(names = {"-r", "--representative"}, description = "file with unencrypted representative text") String representative,
             @Parameters(paramLabel = "<dest file>", description = "dest file which should have decrypted text") String dest) {
-        processInput("analyzer", src, representative, dest);
+        processInput("analyze", src, representative, dest);
 
     }
 
