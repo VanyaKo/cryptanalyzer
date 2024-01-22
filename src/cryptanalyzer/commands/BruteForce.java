@@ -37,7 +37,7 @@ public class BruteForce implements Action {
         initMap(wordBeginsRepresentativeMap, representativeFile);
         List<Map.Entry<String, Integer>> sortedRepresentative = getSortedList(wordBeginsRepresentativeMap);
         TreeMap<Integer, Integer> scorePerKey = new TreeMap<>(Comparator.reverseOrder());
-        for(int key = 1; key < Const.ALPHABET.length; key++) {
+        for(int key = 1; key < Const.ALPHABET.size(); key++) {
             CaesarCipher.applyCipherToText(srcFile, destFile, -key);
             Map<String, Integer> wordBeginsBruteForceMap = new TreeMap<>();
             initMap(wordBeginsBruteForceMap, destFile);
@@ -93,7 +93,7 @@ public class BruteForce implements Action {
     }
 
     private void executeWithoutRepresentative(Path srcFile, Path destFile) {
-        for(int key = 1; key < Const.ALPHABET.length; key++) {
+        for(int key = 1; key < Const.ALPHABET.size(); key++) {
             CaesarCipher.applyCipherToText(srcFile, destFile, -key);
             if(keyIsValidated(destFile)) {
                 return;
