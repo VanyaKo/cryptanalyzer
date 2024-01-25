@@ -28,7 +28,7 @@ public class CaesarCipher {
                 bufferedWriter.write(Const.ALPHABET.get(destCharIdx));
             }
         } catch(Exception e) {
-            e.printStackTrace();
+            throw new AppException(e.getMessage(), e.getCause());
         }
     }
 

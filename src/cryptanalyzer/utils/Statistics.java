@@ -33,7 +33,7 @@ public class Statistics {
             }
             System.out.println("Full thousands is " + thousandsCnt);
             if(thousandsCnt < 1) {
-                throw new AppException("Cannot provide statistics because text size is less than 1_000");
+                throw new AppException("Cannot provide statistics since text size < 1 000");
             } else if(thousandsCnt > 1) {
                 for(Map.Entry<Character, Double> entry : frequencyMap.entrySet()) {
                     entry.setValue(entry.getValue() / (thousandsCnt * STATISTICS_RANGE));
