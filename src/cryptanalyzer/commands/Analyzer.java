@@ -27,8 +27,8 @@ public class Analyzer implements Action{
 
     private void executeWithRepresentative(Path srcFile, Path representativeFile, Path destFile) {
         Map<Character, Double> representativeFrequency = computeFrequency(representativeFile);
-        for(int key = 1; key < Const.ALPHABET.size(); key++) {
-            CaesarCipher.applyCipherToText(srcFile, destFile, -key);
+        for(int key = 0; key < Const.ALPHABET.size(); key++) {
+            CaesarCipher.applyCipherToText(srcFile, destFile, -key, false);
             Map<Character, Double> destFrequency = computeFrequency(destFile);
         }
     }
@@ -41,7 +41,7 @@ public class Analyzer implements Action{
         Map<Character, Double> srcFrequency = computeFrequency(srcFile);
         List<Map.Entry<Character, Double>> sortedFrequency = getSortedList(srcFrequency);
         int resultKey = computeKey(sortedFrequency);
-        CaesarCipher.applyCipherToText(srcFile, destFile, resultKey);
+        CaesarCipher.applyCipherToText(srcFile, destFile, resultKey, false);
         System.out.println("Key is " + resultKey);
         System.out.println("Sorted frequency is " + sortedFrequency);
     }

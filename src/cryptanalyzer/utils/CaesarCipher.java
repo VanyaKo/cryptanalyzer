@@ -1,6 +1,7 @@
 package cryptanalyzer.utils;
 
 import cryptanalyzer.consts.Const;
+import cryptanalyzer.exception.AppException;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -11,13 +12,16 @@ public class CaesarCipher {
     private CaesarCipher() {
     }
 
-    public static void applyCipherToText(Path src, Path dest, int key) {
+    public static void applyCipherToText(Path src, Path dest, int key, boolean isDecodeMode) {
         try(BufferedReader bufferedReader = Files.newBufferedReader(src);
             BufferedWriter bufferedWriter = Files.newBufferedWriter(dest)) {
             while(bufferedReader.ready()) {
                 char srcChar = (char) bufferedReader.read();
                 int srcCharIdx = Const.ALPHABET.indexOf(srcChar);
                 if(srcCharIdx == -1) {
+                    if(isDecodeMode) {
+                        throw new AppException("Char " + srcChar + " does not exist in the alphabet");
+                    }
                     continue;
                 }
                 int destCharIdx = getCipheredChar(srcCharIdx, key);
