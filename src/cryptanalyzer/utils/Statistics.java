@@ -41,7 +41,7 @@ public class Statistics {
                 System.out.println(frequencyMap);
             }
         } catch(Exception e) {
-            e.printStackTrace();
+            throw new AppException(e.getMessage(), e.getCause());
         }
         return frequencyMap;
     }

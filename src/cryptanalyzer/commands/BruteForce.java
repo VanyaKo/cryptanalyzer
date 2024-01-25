@@ -1,8 +1,8 @@
 package cryptanalyzer.commands;
 
+import cryptanalyzer.consts.Actions;
 import cryptanalyzer.consts.Const;
 import cryptanalyzer.entity.Result;
-import cryptanalyzer.entity.ResultCode;
 import cryptanalyzer.utils.CaesarCipher;
 
 import java.io.BufferedReader;
@@ -22,17 +22,16 @@ public class BruteForce implements Action {
         Path srcFile = Path.of(params[0]);
         Path destFile = Path.of(params[2]);
         if(params[1] != null) {
-            executeWithRepresentative(srcFile, Path.of(params[1]), destFile);
+            return executeWithRepresentative(srcFile, Path.of(params[1]), destFile);
         } else {
-            executeWithoutRepresentative(srcFile, destFile);
+            return executeWithoutRepresentative(srcFile, destFile);
         }
-        return new Result("", ResultCode.OK);
     }
 
     /**
-     * словарь наиболее частых начал слова (3 буквы)
+     * Based on a dictionary of the most frequent word beginnings (first 3 letters)
      */
-    private void executeWithRepresentative(Path srcFile, Path representativeFile, Path destFile) {
+    private Result executeWithRepresentative(Path srcFile, Path representativeFile, Path destFile) {
         Map<String, Integer> wordBeginsRepresentativeMap = new TreeMap<>();
         initMap(wordBeginsRepresentativeMap, representativeFile);
         List<Map.Entry<String, Integer>> sortedRepresentative = getSortedList(wordBeginsRepresentativeMap);
@@ -46,6 +45,7 @@ public class BruteForce implements Action {
         }
         int resultKey = scorePerKey.firstEntry().getValue();
         CaesarCipher.applyCipherToText(srcFile, destFile, resultKey, false);
+        return new Result(Result.SUCCESS_MESSAGE_UNKNOWN_KEY.formatted(Actions.BRUTE_FORCE.getCommandName(), resultKey));
     }
 
     private void addScore(Map<Integer, Integer> scorePerKey, int key,
@@ -92,13 +92,14 @@ public class BruteForce implements Action {
         }
     }
 
-    private void executeWithoutRepresentative(Path srcFile, Path destFile) {
+    private Result executeWithoutRepresentative(Path srcFile, Path destFile) {
         for(int key = 1; key < Const.ALPHABET.size(); key++) {
             CaesarCipher.applyCipherToText(srcFile, destFile, -key, false);
             if(keyIsValidated(destFile)) {
-                return;
+                return new Result(Result.SUCCESS_MESSAGE_UNKNOWN_KEY.formatted(Actions.BRUTE_FORCE.getCommandName(), key));
             }
         }
+        return new Result(Result.FAIL_MESSAGE.formatted(Actions.BRUTE_FORCE.getCommandName()));
     }
 
     private boolean keyIsValidated(Path destFile) {

@@ -8,15 +8,17 @@ import cryptanalyzer.commands.Encoder;
 import cryptanalyzer.exception.AppException;
 
 public enum Actions {
-    ENCODE(new Encoder()),
-    DECODE(new Decoder()),
-    BRUTE_FORCE(new BruteForce()),
-    ANALYZE(new Analyzer());
+    ENCODE(new Encoder(), "Encoding"),
+    DECODE(new Decoder(), "Decoding"),
+    BRUTE_FORCE(new BruteForce(), "Brute force"),
+    ANALYZE(new Analyzer(), "Statistical analysis");
 
     private final Action action;
+    private final String commandName;
 
-    Actions(Action action) {
+    Actions(Action action, String commandName) {
         this.action = action;
+        this.commandName = commandName;
     }
 
     public static Action find(String actionName) {
@@ -25,5 +27,9 @@ public enum Actions {
         } catch(IllegalArgumentException e) {
             throw new AppException("\"" + actionName + "\"" + " command not found");
         }
+    }
+
+    public String getCommandName() {
+        return commandName;
     }
 }
