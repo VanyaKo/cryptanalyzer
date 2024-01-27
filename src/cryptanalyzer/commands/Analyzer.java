@@ -3,15 +3,18 @@ package cryptanalyzer.commands;
 import cryptanalyzer.consts.Const;
 import cryptanalyzer.entity.Result;
 import cryptanalyzer.entity.ResultCode;
+import cryptanalyzer.entity.SumOfSquaredDeviations;
 import cryptanalyzer.utils.CaesarCipher;
 import cryptanalyzer.utils.Statistics;
 
 import java.nio.file.Path;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
-public class Analyzer implements Action{
+public class Analyzer implements Action {
     @Override
     public Result execute(String[] params) {
         Path srcFile = Path.of(params[0]);
@@ -26,19 +29,29 @@ public class Analyzer implements Action{
 
 
     private void executeWithRepresentative(Path srcFile, Path representativeFile, Path destFile) {
-        Map<Character, Double> representativeFrequency = computeFrequency(representativeFile);
-        for(int key = 1; key < Const.ALPHABET.size(); key++) {
-            CaesarCipher.applyCipherToText(srcFile, destFile, -key);
-            Map<Character, Double> destFrequency = computeFrequency(destFile);
-        }
-    }
+        Map<Character, Double> representativeFrequency = Statistics.computeFrequency(representativeFile);
+        SumOfSquaredDeviations formula = new SumOfSquaredDeviations();
+        double representativeMetric = formula.computeResult(representativeFrequency);
+        System.out.println(representativeMetric);
 
-    private Map<Character, Double> computeFrequency(Path representativeFile) {
-        return Statistics.computeFrequency(representativeFile);
+        int minDeviationKey = 0;
+        double minDeviationValue = Double.MAX_VALUE;
+        for(int key = 0; key < Const.ALPHABET.size(); key++) {
+            CaesarCipher.applyCipherToText(srcFile, destFile, -key);
+            Map<Character, Double> destFrequency = Statistics.computeFrequency(destFile);
+            double decodedMetric = formula.computeResult(destFrequency);
+            double currentDeviation = Math.abs(decodedMetric - representativeMetric);
+            if(currentDeviation < minDeviationValue) {
+                minDeviationValue = currentDeviation;
+                minDeviationKey = key;
+            }
+        }
+        int resultKey = minDeviationKey;
+        System.out.println("Found key is " + resultKey);
     }
 
     private void executeWithoutRepresentative(Path srcFile, Path destFile) {
-        Map<Character, Double> srcFrequency = computeFrequency(srcFile);
+        Map<Character, Double> srcFrequency = Statistics.computeFrequency(srcFile);
         List<Map.Entry<Character, Double>> sortedFrequency = getSortedList(srcFrequency);
         int resultKey = computeKey(sortedFrequency);
         CaesarCipher.applyCipherToText(srcFile, destFile, resultKey);
