@@ -2,6 +2,7 @@ package cryptanalyzer.consts;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class Const {
@@ -12,16 +13,9 @@ public class Const {
      * Alphabet regex is [а-еж-я.,«»"':!? ]+
      * TODO: check if adding \n symbol is possible
      */
-    private static final char[] ALPHABET_ARRAY = {'а', 'б', 'в', 'г', 'д', 'е', 'ж', 'з',
+    public static final List<Character> ALPHABET = Arrays.asList('а', 'б', 'в', 'г', 'д', 'е', 'ж', 'з',
             'и', 'й', 'к', 'л', 'м', 'н', 'о', 'п', 'р', 'с', 'т', 'у', 'ф', 'х', 'ц', 'ч', 'ш', 'щ',
-            'ъ', 'ы', 'ь', 'э', 'ю', 'я', '.', ',', '«', '»', '"', '\'', ':', '!', '?', ' '};
-    public static final List<Character> ALPHABET = new ArrayList<>();
-
-    static {
-        for(char c : ALPHABET_ARRAY) {
-            ALPHABET.add(c);
-        }
-    }
+            'ъ', 'ы', 'ь', 'э', 'ю', 'я', '.', ',', '«', '»', '"', '\'', ':', '!', '?', ' ');
 
     public static final int WORD_DELIMITERS_START_INDEX = 32;
     public static final List<Character> FORBIDDEN_START_PUNCTUATION = new ArrayList<>(
