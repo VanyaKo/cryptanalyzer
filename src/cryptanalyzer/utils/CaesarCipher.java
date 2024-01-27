@@ -16,7 +16,7 @@ public class CaesarCipher {
         try(BufferedReader bufferedReader = Files.newBufferedReader(src);
             BufferedWriter bufferedWriter = Files.newBufferedWriter(dest)) {
             while(bufferedReader.ready()) {
-                char srcChar = (char) bufferedReader.read();
+                char srcChar = (char) Character.toLowerCase(bufferedReader.read());
                 int srcCharIdx = Const.ALPHABET.indexOf(srcChar);
                 if(srcCharIdx == -1) {
                     if(isDecodeMode) {
