@@ -4,6 +4,7 @@ import cryptanalyzer.consts.Actions;
 import cryptanalyzer.consts.Const;
 import cryptanalyzer.entity.Result;
 import cryptanalyzer.entity.ResultCode;
+import cryptanalyzer.entity.SumOfSquaredDeviations;
 import cryptanalyzer.utils.CaesarCipher;
 import cryptanalyzer.utils.Statistics;
 
@@ -22,7 +23,6 @@ public class Analyzer implements Action {
         } else {
             return executeWithoutRepresentative(srcFile, destFile);
         }
-        return new Result("", ResultCode.OK);
     }
 
 
