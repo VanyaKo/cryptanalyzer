@@ -8,6 +8,7 @@ import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
 
+import static cryptanalyzer.consts.Const.ONE_HUNDRED_PERCENT;
 import static cryptanalyzer.consts.Const.STATISTICS_RANGE;
 
 public class Statistics {
@@ -31,14 +32,12 @@ public class Statistics {
                     }
                 }
             }
-            System.out.println("Full thousands is " + thousandsCnt);
             if(thousandsCnt < 1) {
                 throw new AppException("Cannot provide statistics since text size < 1 000");
             } else if(thousandsCnt > 1) {
                 for(Map.Entry<Character, Double> entry : frequencyMap.entrySet()) {
-                    entry.setValue(entry.getValue() / (thousandsCnt * STATISTICS_RANGE));
+                    entry.setValue(entry.getValue() * ONE_HUNDRED_PERCENT / (thousandsCnt * STATISTICS_RANGE));
                 }
-                System.out.println(frequencyMap);
             }
         } catch(Exception e) {
             throw new AppException(e.getMessage(), e.getCause());

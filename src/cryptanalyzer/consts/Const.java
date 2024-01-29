@@ -22,6 +22,7 @@ public class Const {
             List.of('.', ',', '»', ':', '!', '?'));
     public static final char FORBIDDEN_END_PUNCTUATION_CHAR = '«';
     public static final int STATISTICS_RANGE = 1_000;
+    public static final int ONE_HUNDRED_PERCENT = 100;
     public static final String TXT_FOLDER = System.getProperty("user.dir") + File.separator + "text" + File.separator;
     public static final String DEFAULT_ENCRYPTED_FILE_NAME = "encrypt.txt";
     public static final String DEFAULT_DECRYPTED_FILE_NAME = "decrypt.txt";

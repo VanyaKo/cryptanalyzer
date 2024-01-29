@@ -41,6 +41,7 @@ public class Analyzer implements Action {
             Map<Character, Double> destFrequency = Statistics.computeFrequency(destFile);
             double decodedMetric = formula.computeResult(destFrequency);
             double currentDeviation = Math.abs(decodedMetric - representativeMetric);
+            System.out.println("key=" + key + "deviation=" + currentDeviation * 1_000_000);
             if(currentDeviation < minDeviationValue) {
                 minDeviationValue = currentDeviation;
                 minDeviationKey = key;
