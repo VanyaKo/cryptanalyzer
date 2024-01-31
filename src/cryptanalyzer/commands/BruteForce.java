@@ -1,5 +1,6 @@
 package cryptanalyzer.commands;
 
+import cryptanalyzer.FileService;
 import cryptanalyzer.consts.Actions;
 import cryptanalyzer.consts.Const;
 import cryptanalyzer.entity.Result;
@@ -17,6 +18,14 @@ import java.util.StringTokenizer;
 import java.util.TreeMap;
 
 public class BruteForce implements Action {
+    private final CaesarCipher caesarCipher;
+    private final FileService fileService;
+
+    public BruteForce() {
+        caesarCipher = new CaesarCipher();
+        fileService = new FileService();
+    }
+
     @Override
     public Result execute(String[] params) {
         Path srcFile = Path.of(params[0]);
@@ -31,20 +40,23 @@ public class BruteForce implements Action {
     /**
      * Based on a dictionary of the most frequent word beginnings (first 3 letters)
      */
-    private Result executeWithRepresentative(Path srcFile, Path representativeFile, Path destFile) {
+    private Result executeWithRepresentative(Path srcFile, Path representFile, Path destFile) {
         Map<String, Integer> wordBeginsRepresentativeMap = new TreeMap<>();
-        initMap(wordBeginsRepresentativeMap, representativeFile);
+        String representText = fileService.readFrom(representFile);
+        initMap(wordBeginsRepresentativeMap, representText);
         List<Map.Entry<String, Integer>> sortedRepresentative = getSortedList(wordBeginsRepresentativeMap);
         TreeMap<Integer, Integer> scorePerKey = new TreeMap<>(Comparator.reverseOrder());
-        for(int key = 0; key < Const.ALPHABET.size(); key++) {
-            CaesarCipher.applyCipherToText(srcFile, destFile, -key, false);
+        String srcText = fileService.readFrom(srcFile);
+        for(int key = 0; key < Const.ALPHABET.length; key++) {
+            String decryptedText = caesarCipher.doCipher(srcText, -key, false);
             Map<String, Integer> wordBeginsBruteForceMap = new TreeMap<>();
-            initMap(wordBeginsBruteForceMap, destFile);
+            initMap(wordBeginsBruteForceMap, decryptedText);
             List<Map.Entry<String, Integer>> sortedBruteForce = getSortedList(wordBeginsBruteForceMap);
             addScore(scorePerKey, key, sortedRepresentative, sortedBruteForce);
         }
         int resultKey = scorePerKey.firstEntry().getValue();
-        CaesarCipher.applyCipherToText(srcFile, destFile, resultKey, false);
+        String resultText = caesarCipher.doCipher(srcText, resultKey, false);
+        fileService.writeTo(destFile, resultText);
         return new Result(Result.SUCCESS_MESSAGE_UNKNOWN_KEY.formatted(Actions.BRUTE_FORCE.getCommandName(), resultKey));
     }
 
@@ -67,18 +79,8 @@ public class BruteForce implements Action {
                 .toList();
     }
 
-    private void initMap(Map<String, Integer> map, Path file) {
-        try(BufferedReader bufferedReader = Files.newBufferedReader(file)) {
-            while(bufferedReader.ready()) {
-                putWords(map, bufferedReader.readLine());
-            }
-        } catch(Exception e) {
-            System.out.println("BruteForce.addMetric");
-        }
-    }
-
-    private void putWords(Map<String, Integer> map, String line) {
-        StringTokenizer tokenizer = new StringTokenizer(line, " ");
+    private void initMap(Map<String, Integer> map, String text) {
+        StringTokenizer tokenizer = new StringTokenizer(text, " ");
         while(tokenizer.hasMoreTokens()) {
             String word = tokenizer.nextToken();
             if(word.length() >= 3) {
@@ -93,8 +95,10 @@ public class BruteForce implements Action {
     }
 
     private Result executeWithoutRepresentative(Path srcFile, Path destFile) {
-        for(int key = 1; key < Const.ALPHABET.size(); key++) {
-            CaesarCipher.applyCipherToText(srcFile, destFile, -key, false);
+        for(int key = 1; key < Const.ALPHABET.length; key++) {
+            String srcText = fileService.readFrom(srcFile);
+            String decodedText = caesarCipher.doCipher(srcText, -key, false);
+            fileService.writeTo(destFile, decodedText);
             if(keyIsValidated(destFile)) {
                 return new Result(Result.SUCCESS_MESSAGE_UNKNOWN_KEY.formatted(Actions.BRUTE_FORCE.getCommandName(), key));
             }

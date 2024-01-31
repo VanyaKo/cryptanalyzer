@@ -3,6 +3,9 @@ package cryptanalyzer.utils;
 import cryptanalyzer.exception.AppException;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.CharArrayReader;
+import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
@@ -12,10 +15,11 @@ import static cryptanalyzer.consts.Const.ONE_HUNDRED_PERCENT;
 import static cryptanalyzer.consts.Const.STATISTICS_RANGE;
 
 public class Statistics {
-    public static Map<Character, Double> computeFrequency(Path file) {
+    public Map<Character, Double> computeFrequency(String text) {
         Map<Character, Double> frequencyMap = new HashMap<>();
         int thousandsCnt = 0;
-        try(BufferedReader bufferedReader = Files.newBufferedReader(file)) {
+
+        try(BufferedReader bufferedReader = new BufferedReader(new CharArrayReader(text.toLowerCase().toCharArray()))) {
             while(bufferedReader.ready()) {
                 char[] buffer = new char[STATISTICS_RANGE];
                 int charsRead = bufferedReader.read(buffer);
@@ -24,7 +28,6 @@ public class Statistics {
                 }
                 thousandsCnt++;
                 for(char ch : buffer) {
-                    ch = Character.toLowerCase(ch);
                     if(frequencyMap.containsKey(ch)) {
                         frequencyMap.put(ch, frequencyMap.get(ch) + 1);
                     } else {

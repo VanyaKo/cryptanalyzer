@@ -2,38 +2,34 @@ package cryptanalyzer.utils;
 
 import cryptanalyzer.consts.Const;
 import cryptanalyzer.exception.AppException;
+import cryptanalyzer.model.CryptModel;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
 
 public class CaesarCipher {
-    private CaesarCipher() {
-    }
-
-    public static void applyCipherToText(Path src, Path dest, int key, boolean isDecodeMode) {
-        try(BufferedReader bufferedReader = Files.newBufferedReader(src);
-            BufferedWriter bufferedWriter = Files.newBufferedWriter(dest)) {
-            while(bufferedReader.ready()) {
-                char srcChar = (char) Character.toLowerCase(bufferedReader.read());
-                int srcCharIdx = Const.ALPHABET.indexOf(srcChar);
-                if(srcCharIdx == -1) {
-                    if(isDecodeMode) {
-                        throw new AppException("Char " + srcChar + " does not exist in the alphabet");
-                    }
-                    continue;
+    public String doCipher(String srcText, int key, boolean isDecodeMode) {
+        StringBuilder cipheredText = new StringBuilder();
+        for(char srcChar : srcText.toLowerCase().toCharArray()) {
+            Integer srcCharIdx = Const.ALPHABET_INDEXES.get(srcChar);
+            if(srcCharIdx == null) {
+                if(isDecodeMode) {
+                    throw new AppException("Char " + srcChar + " does not exist in the alphabet");
                 }
-                int destCharIdx = getCipheredChar(srcCharIdx, key);
-                bufferedWriter.write(Const.ALPHABET.get(destCharIdx));
+                continue;
             }
-        } catch(Exception e) {
-            throw new AppException(e.getMessage(), e.getCause());
+            int destCharIdx = getCipheredChar(srcCharIdx, key);
+            cipheredText.append(Const.ALPHABET[destCharIdx]);
         }
+        return cipheredText.toString();
     }
 
-    private static int getCipheredChar(int idx, int key) {
-        int alphabetLength = Const.ALPHABET.size();
+    private int getCipheredChar(int idx, int key) {
+        int alphabetLength = Const.ALPHABET.length;
         return Math.abs(alphabetLength + idx + key) % alphabetLength;
     }
 }

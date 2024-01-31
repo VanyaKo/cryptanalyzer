@@ -3,6 +3,7 @@ package cryptanalyzer.consts;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 
 public class Const {
@@ -11,11 +12,20 @@ public class Const {
 
     /**
      * Alphabet regex is [а-еж-я.,«»"':!? ]+
-     * TODO: check if adding \n symbol is possible
      */
-    public static final List<Character> ALPHABET = Arrays.asList('а', 'б', 'в', 'г', 'д', 'е', 'ж', 'з',
-            'и', 'й', 'к', 'л', 'м', 'н', 'о', 'п', 'р', 'с', 'т', 'у', 'ф', 'х', 'ц', 'ч', 'ш', 'щ',
-            'ъ', 'ы', 'ь', 'э', 'ю', 'я', '.', ',', '«', '»', '"', '\'', ':', '!', '?', ' ', '\n');
+    public static final char[] ALPHABET;
+    public static final HashMap<Character, Integer> ALPHABET_INDEXES;
+
+    static {
+        ALPHABET = new char[]{'а', 'б', 'в', 'г', 'д', 'е', 'ж', 'з',
+                'и', 'й', 'к', 'л', 'м', 'н', 'о', 'п', 'р', 'с', 'т', 'у', 'ф', 'х', 'ц', 'ч', 'ш', 'щ',
+                'ъ', 'ы', 'ь', 'э', 'ю', 'я', '.', ',', '«', '»', '"', '\'', ':', '!', '?', ' ', '\n'};
+        ALPHABET_INDEXES = new HashMap<>();
+        int index = 0;
+        for(Character c : ALPHABET) {
+            ALPHABET_INDEXES.put(c, index++);
+        }
+    }
 
     public static final int WORD_DELIMITERS_START_INDEX = 32;
     public static final List<Character> FORBIDDEN_START_PUNCTUATION = new ArrayList<>(

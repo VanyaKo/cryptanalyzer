@@ -1,5 +1,6 @@
 package cryptanalyzer;
 
+import cryptanalyzer.controllers.CryptController;
 import cryptanalyzer.entity.Result;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
@@ -12,7 +13,7 @@ import picocli.CommandLine.Spec;
 @Command(name = "cypher", subcommands = {CommandLine.HelpCommand.class},
         description = "Caesar cypher command")
 public class PicocliRunner implements Runnable {
-    private final Application application = new Application();
+    private final CryptController cryptController = new CryptController();
     @Spec
     CommandSpec spec;
 
@@ -25,7 +26,7 @@ public class PicocliRunner implements Runnable {
     }
 
     private void processInput(String... args) {
-        Result result = application.run(args);
+        Result result = cryptController.run(args);
         System.out.println(result);
     }
 

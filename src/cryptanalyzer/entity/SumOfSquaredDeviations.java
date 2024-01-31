@@ -13,17 +13,4 @@ public class SumOfSquaredDeviations {
         }
         return deviation;
     }
-
-    private double computeAverage(Map<Character, Double> map) {
-        double sum = sumValues(map);
-        return sum / map.size();
-    }
-
-    private double sumValues(Map<Character, Double> map) {
-        double sum = 0;
-        for(Map.Entry<Character, Double> entry : map.entrySet()) {
-            sum += entry.getValue();
-        }
-        return sum;
-    }
 }
