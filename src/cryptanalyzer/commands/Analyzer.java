@@ -31,17 +31,15 @@ public class Analyzer implements Action {
     private Result executeWithRepresentative(Path srcFile, Path representativeFile, Path destFile) {
         Map<Character, Double> representativeFrequency = Statistics.computeFrequency(representativeFile);
         SumOfSquaredDeviations formula = new SumOfSquaredDeviations();
-        double representativeMetric = formula.computeResult(representativeFrequency);
-        System.out.println(representativeMetric);
 
         int minDeviationKey = 0;
         double minDeviationValue = Double.MAX_VALUE;
         for(int key = 0; key < Const.ALPHABET.size(); key++) {
             CaesarCipher.applyCipherToText(srcFile, destFile, -key, false);
             Map<Character, Double> destFrequency = Statistics.computeFrequency(destFile);
-            double decodedMetric = formula.computeResult(destFrequency);
-            double currentDeviation = Math.abs(decodedMetric - representativeMetric);
-            System.out.println("key=" + key + "deviation=" + currentDeviation * 1_000_000);
+            double decodedMetric = formula.computeResult(representativeFrequency, destFrequency);
+            double currentDeviation = Math.abs(decodedMetric - 0);
+            System.out.println("key=" + key + "deviation=" + currentDeviation);
             if(currentDeviation < minDeviationValue) {
                 minDeviationValue = currentDeviation;
                 minDeviationKey = key;

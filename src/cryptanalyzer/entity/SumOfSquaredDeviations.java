@@ -3,13 +3,15 @@ package cryptanalyzer.entity;
 import java.util.Map;
 
 public class SumOfSquaredDeviations {
-    public double computeResult(Map<Character, Double> map) {
-        double average = computeAverage(map);
-        double squaredSum = 0;
-        for(Map.Entry<Character, Double> entry : map.entrySet()) {
-            squaredSum += Math.pow(entry.getValue() - average, 2);
+    public double computeResult(Map<Character, Double> representativeMap, Map<Character, Double> encodedMap) {
+        double deviation = 0;
+        for(Map.Entry<Character, Double> entry : representativeMap.entrySet()) {
+            char symbol = entry.getKey();
+            if(encodedMap.containsKey(symbol)) {
+                deviation += Math.pow(entry.getValue() - encodedMap.get(symbol), 2);
+            }
         }
-        return squaredSum / (map.size() - 1);
+        return deviation;
     }
 
     private double computeAverage(Map<Character, Double> map) {
