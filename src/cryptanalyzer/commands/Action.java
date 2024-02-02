@@ -1,8 +1,8 @@
 package cryptanalyzer.commands;
 
-import cryptanalyzer.FileService;
-import cryptanalyzer.entity.Result;
-import cryptanalyzer.utils.CaesarCipher;
+import cryptanalyzer.services.FileService;
+import cryptanalyzer.entities.Result;
+import cryptanalyzer.services.CaesarCipher;
 
 import java.util.Map;
 

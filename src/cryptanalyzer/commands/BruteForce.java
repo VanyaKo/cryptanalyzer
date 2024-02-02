@@ -1,8 +1,8 @@
 package cryptanalyzer.commands;
 
 import cryptanalyzer.consts.Const;
-import cryptanalyzer.entity.Actions;
-import cryptanalyzer.entity.Result;
+import cryptanalyzer.entities.ActionType;
+import cryptanalyzer.entities.Result;
 
 import java.nio.file.Path;
 import java.util.Collections;
@@ -42,7 +42,7 @@ public class BruteForce extends Action {
         int resultKey = scorePerKey.firstEntry().getValue();
         List<String> resultText = caesarCipher.doCipher(srcText, resultKey, false);
         fileService.writeTo(destFile, resultText);
-        return new Result(Result.SUCCESS_MESSAGE_UNKNOWN_KEY.formatted(Actions.BRUTE_FORCE.getCommandName(), resultKey));
+        return new Result(Result.SUCCESS_MESSAGE_UNKNOWN_KEY.formatted(ActionType.BRUTE_FORCE.getCommandName(), resultKey));
     }
 
     private void addScore(Map<Integer, Integer> scorePerKey, int key,
@@ -85,10 +85,10 @@ public class BruteForce extends Action {
             List<String> decodedText = caesarCipher.doCipher(srcText, -key, false);
             if(keyIsValidated(decodedText)) {
                 fileService.writeTo(destFile, decodedText);
-                return new Result(Result.SUCCESS_MESSAGE_UNKNOWN_KEY.formatted(Actions.BRUTE_FORCE.getCommandName(), key));
+                return new Result(Result.SUCCESS_MESSAGE_UNKNOWN_KEY.formatted(ActionType.BRUTE_FORCE.getCommandName(), key));
             }
         }
-        return new Result(Result.FAIL_MESSAGE.formatted(Actions.BRUTE_FORCE.getCommandName()));
+        return new Result(Result.FAIL_MESSAGE.formatted(ActionType.BRUTE_FORCE.getCommandName()));
     }
 
     private boolean keyIsValidated(List<String> destFile) {

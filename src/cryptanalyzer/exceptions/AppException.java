@@ -1,4 +1,4 @@
-package cryptanalyzer.exception;
+package cryptanalyzer.exceptions;
 
 public class AppException extends RuntimeException {
     public AppException(String message) {

@@ -1,4 +1,4 @@
-package cryptanalyzer.entity;
+package cryptanalyzer.services;
 
 import java.util.Map;
 

@@ -1,4 +1,4 @@
-package cryptanalyzer.entity;
+package cryptanalyzer.entities;
 
 public class Result {
     public static final String SUCCESS_MESSAGE_UNKNOWN_KEY = "%s is successfully completed. Found key is %d.";

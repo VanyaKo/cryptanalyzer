@@ -1,6 +1,6 @@
-package cryptanalyzer;
+package cryptanalyzer.services;
 
-import cryptanalyzer.exception.AppException;
+import cryptanalyzer.exceptions.AppException;
 
 import java.io.IOException;
 import java.nio.file.Files;

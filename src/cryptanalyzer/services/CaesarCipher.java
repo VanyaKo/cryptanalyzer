@@ -1,7 +1,7 @@
-package cryptanalyzer.utils;
+package cryptanalyzer.services;
 
 import cryptanalyzer.consts.Const;
-import cryptanalyzer.exception.AppException;
+import cryptanalyzer.exceptions.AppException;
 
 import java.util.ArrayList;
 import java.util.List;

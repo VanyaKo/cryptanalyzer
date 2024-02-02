@@ -1,10 +1,10 @@
 package cryptanalyzer.commands;
 
 import cryptanalyzer.consts.Const;
-import cryptanalyzer.entity.Actions;
-import cryptanalyzer.entity.Result;
-import cryptanalyzer.entity.SumOfSquaredDeviations;
-import cryptanalyzer.exception.AppException;
+import cryptanalyzer.entities.ActionType;
+import cryptanalyzer.entities.Result;
+import cryptanalyzer.services.SumOfSquaredDeviations;
+import cryptanalyzer.exceptions.AppException;
 
 import java.io.BufferedReader;
 import java.io.CharArrayReader;
@@ -54,7 +54,7 @@ public class Analyzer extends Action {
             }
         }
         fileService.writeTo(destFile, caesarCipher.doCipher(srcText, -minDeviationKey, false));
-        return new Result(Result.SUCCESS_MESSAGE_UNKNOWN_KEY.formatted(Actions.ANALYZE.getCommandName(), minDeviationKey));
+        return new Result(Result.SUCCESS_MESSAGE_UNKNOWN_KEY.formatted(ActionType.ANALYZE.getCommandName(), minDeviationKey));
     }
 
     private Result executeWithoutRepresentative(Path srcFile, Path destFile) {
@@ -64,7 +64,7 @@ public class Analyzer extends Action {
         int resultKey = computeKeyBySpace(sortedFrequency);
         List<String> decodedText = caesarCipher.doCipher(srcText, -resultKey, false);
         fileService.writeTo(destFile, decodedText);
-        return new Result(Result.SUCCESS_MESSAGE_UNKNOWN_KEY.formatted(Actions.ANALYZE.getCommandName(), resultKey));
+        return new Result(Result.SUCCESS_MESSAGE_UNKNOWN_KEY.formatted(ActionType.ANALYZE.getCommandName(), resultKey));
     }
 
     public Map<Character, Double> computeFrequency(List<String> text) {

@@ -1,7 +1,7 @@
 package cryptanalyzer.commands;
 
-import cryptanalyzer.entity.Actions;
-import cryptanalyzer.entity.Result;
+import cryptanalyzer.entities.ActionType;
+import cryptanalyzer.entities.Result;
 
 import java.nio.file.Path;
 import java.util.List;
@@ -17,6 +17,6 @@ public class Decoder extends Action {
         List<String> cipheredText = caesarCipher.doCipher(srcText, key, false);
         fileService.writeTo(destPath, cipheredText);
 
-        return new Result(Result.SUCCESS_MESSAGE_KNOWN_KEY.formatted(Actions.DECODE.getCommandName()));
+        return new Result(Result.SUCCESS_MESSAGE_KNOWN_KEY.formatted(ActionType.DECODE.getCommandName()));
     }
 }
