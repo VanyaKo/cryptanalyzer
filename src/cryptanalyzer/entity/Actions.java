@@ -1,4 +1,4 @@
-package cryptanalyzer.consts;
+package cryptanalyzer.entity;
 
 import cryptanalyzer.commands.Action;
 import cryptanalyzer.commands.Analyzer;
@@ -8,8 +8,8 @@ import cryptanalyzer.commands.Encoder;
 import cryptanalyzer.exception.AppException;
 
 public enum Actions {
-    ENCRYPT(new Encoder(), "Encoding"),
-    DECRYPT(new Decoder(), "Decoding"),
+    ENCODE(new Encoder(), "Encoding"),
+    DECODE(new Decoder(), "Decoding"),
     BRUTE_FORCE(new BruteForce(), "Brute force"),
     ANALYZE(new Analyzer(), "Statistical analysis");
 

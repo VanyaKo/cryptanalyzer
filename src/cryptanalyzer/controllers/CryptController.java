@@ -1,7 +1,7 @@
 package cryptanalyzer.controllers;
 
 import cryptanalyzer.commands.Action;
-import cryptanalyzer.consts.Actions;
+import cryptanalyzer.entity.Actions;
 import cryptanalyzer.entity.Result;
 import cryptanalyzer.exception.AppException;
 

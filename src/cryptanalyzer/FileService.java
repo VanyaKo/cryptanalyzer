@@ -16,7 +16,7 @@ public class FileService {
         try {
             return Files.readAllLines(file);
         } catch(IOException e) {
-            throw new AppException("Cannot read data from " + file.getFileName() + " file!", e.getCause());
+            throw new AppException("Cannot read data from \"" + file.getFileName() + "\" file", e.getCause());
         }
     }
 
@@ -24,7 +24,7 @@ public class FileService {
         try {
             Files.write(file, text);
         } catch(IOException e) {
-            throw new AppException("Cannot write data to " + file.getFileName() + "file!", e.getCause());
+            throw new AppException("Cannot write data to \"" + file.getFileName() + "\" file", e.getCause());
         }
     }
 }

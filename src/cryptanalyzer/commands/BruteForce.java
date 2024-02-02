@@ -1,15 +1,9 @@
 package cryptanalyzer.commands;
 
-import cryptanalyzer.FileService;
-import cryptanalyzer.consts.Actions;
 import cryptanalyzer.consts.Const;
+import cryptanalyzer.entity.Actions;
 import cryptanalyzer.entity.Result;
-import cryptanalyzer.exception.AppException;
-import cryptanalyzer.utils.CaesarCipher;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collections;
 import java.util.Comparator;
@@ -34,16 +28,14 @@ public class BruteForce extends Action {
      * Based on a dictionary of the most frequent word beginnings (first 3 letters)
      */
     private Result executeWithRepresentative(Path srcFile, Path representFile, Path destFile) {
-        Map<String, Integer> wordBeginsRepresentativeMap = new TreeMap<>();
         List<String> representText = fileService.readFrom(representFile);
-        initMap(wordBeginsRepresentativeMap, representText);
+        List<String> srcText = fileService.readFrom(srcFile);
+        Map<String, Integer> wordBeginsRepresentativeMap = getWordBeginFrequencyMap(representText);
         List<Map.Entry<String, Integer>> sortedRepresentative = getSortedList(wordBeginsRepresentativeMap);
         TreeMap<Integer, Integer> scorePerKey = new TreeMap<>(Comparator.reverseOrder());
-        List<String> srcText = fileService.readFrom(srcFile);
         for(int key = 0; key < Const.ALPHABET.length; key++) {
             List<String> decryptedText = caesarCipher.doCipher(srcText, -key, false);
-            Map<String, Integer> wordBeginsBruteForceMap = new TreeMap<>();
-            initMap(wordBeginsBruteForceMap, decryptedText);
+            Map<String, Integer> wordBeginsBruteForceMap = getWordBeginFrequencyMap(decryptedText);
             List<Map.Entry<String, Integer>> sortedBruteForce = getSortedList(wordBeginsBruteForceMap);
             addScore(scorePerKey, key, sortedRepresentative, sortedBruteForce);
         }
@@ -72,54 +64,47 @@ public class BruteForce extends Action {
                 .toList();
     }
 
-    private void initMap(Map<String, Integer> map, List<String> text) {
+    private Map<String, Integer> getWordBeginFrequencyMap(List<String> text) {
+        Map<String, Integer> map = new TreeMap<>();
         for(String line : text) {
             StringTokenizer tokenizer = new StringTokenizer(line, " ");
             while(tokenizer.hasMoreTokens()) {
                 String word = tokenizer.nextToken();
                 if(word.length() >= 3) {
                     String wordBegin = word.toLowerCase().substring(0, 3);
-                    if(map.containsKey(wordBegin)) {
-                        map.put(wordBegin, map.get(wordBegin) + 1);
-                    } else {
-                        map.put(wordBegin, 1);
-                    }
+                    map.put(wordBegin, (int) getKeyCount(map, wordBegin));
                 }
             }
         }
+        return map;
     }
 
     private Result executeWithoutRepresentative(Path srcFile, Path destFile) {
         for(int key = 1; key < Const.ALPHABET.length; key++) {
             List<String> srcText = fileService.readFrom(srcFile);
             List<String> decodedText = caesarCipher.doCipher(srcText, -key, false);
-            fileService.writeTo(destFile, decodedText);
-            if(keyIsValidated(destFile)) {
+            if(keyIsValidated(decodedText)) {
+                fileService.writeTo(destFile, decodedText);
                 return new Result(Result.SUCCESS_MESSAGE_UNKNOWN_KEY.formatted(Actions.BRUTE_FORCE.getCommandName(), key));
             }
         }
         return new Result(Result.FAIL_MESSAGE.formatted(Actions.BRUTE_FORCE.getCommandName()));
     }
 
-    private boolean keyIsValidated(Path destFile) {
-        try(BufferedReader bufferedReader = Files.newBufferedReader(destFile)) {
-            while(bufferedReader.ready()) {
-                String line = bufferedReader.readLine();
-                if(!line.contains(" ")) {
+    private boolean keyIsValidated(List<String> destFile) {
+        for(String line : destFile) {
+            if(!line.contains(" ")) {
+                return false;
+            }
+            StringTokenizer tokenizer = new StringTokenizer(line, " ");
+            while(tokenizer.hasMoreTokens()) {
+                String word = tokenizer.nextToken();
+                if(startsWithForbiddenPunctuation(word) || endsWithForbiddenPunctuation(word)) {
                     return false;
                 }
-                StringTokenizer tokenizer = new StringTokenizer(line, " ");
-                while(tokenizer.hasMoreTokens()) {
-                    String word = tokenizer.nextToken();
-                    if(startsWithForbiddenPunctuation(word) || endsWithForbiddenPunctuation(word)) {
-                        return false;
-                    }
-                }
             }
-            return true;
-        } catch(IOException e) {
-            throw new AppException(e.getMessage(), e.getCause());
         }
+        return true;
     }
 
     private boolean endsWithForbiddenPunctuation(String word) {

@@ -15,7 +15,7 @@ public class CaesarCipher {
                 Integer srcCharIdx = Const.ALPHABET_INDEXES.get(srcChar);
                 if(srcCharIdx == null) {
                     if(isDecodeMode) {
-                        throw new AppException("Char " + srcChar + " does not exist in the alphabet");
+                        throw new AppException("Symbol '" + srcChar + "' does not exist in the alphabet");
                     }
                     continue;
                 }

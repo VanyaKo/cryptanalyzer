@@ -1,29 +1,23 @@
 package cryptanalyzer.commands;
 
-import cryptanalyzer.FileService;
-import cryptanalyzer.consts.Actions;
 import cryptanalyzer.consts.Const;
+import cryptanalyzer.entity.Actions;
 import cryptanalyzer.entity.Result;
 import cryptanalyzer.entity.SumOfSquaredDeviations;
-import cryptanalyzer.utils.CaesarCipher;
-import cryptanalyzer.utils.Statistics;
+import cryptanalyzer.exception.AppException;
 
+import java.io.BufferedReader;
+import java.io.CharArrayReader;
 import java.nio.file.Path;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static cryptanalyzer.consts.Const.ONE_HUNDRED_PERCENT;
+import static cryptanalyzer.consts.Const.STATISTICS_RANGE;
+
 public class Analyzer extends Action {
-    private final CaesarCipher caesarCipher;
-    private final FileService fileService;
-    private final Statistics statistics;
-
-    public Analyzer() {
-        caesarCipher = new CaesarCipher();
-        fileService = new FileService();
-        statistics = new Statistics();
-    }
-
     @Override
     public Result execute(String[] params) {
 
@@ -41,46 +35,77 @@ public class Analyzer extends Action {
 
 
     private Result executeWithRepresentative(Path srcFile, Path representFile, Path destFile) {
+        List<String> srcText = fileService.readFrom(srcFile);
         List<String> representText = fileService.readFrom(representFile);
-        Map<Character, Double> representFrequency = statistics.computeFrequency(representText);
+        Map<Character, Double> representFrequency = computeFrequency(representText);
         SumOfSquaredDeviations formula = new SumOfSquaredDeviations();
-        List<String> decryptedText = null;
+        List<String> decryptedText;
 
         int minDeviationKey = 0;
         double minDeviationValue = Double.MAX_VALUE;
         for(int key = 0; key < Const.ALPHABET.length; key++) {
-            List<String> srcText = fileService.readFrom(srcFile);
             decryptedText = caesarCipher.doCipher(srcText, -key, false);
-            Map<Character, Double> destFrequency = statistics.computeFrequency(decryptedText);
-            double decodedMetric = formula.computeResult(representFrequency, destFrequency);
-            double currentDeviation = Math.abs(decodedMetric - 0);
-            System.out.println("key=" + key + "deviation=" + currentDeviation);
+            Map<Character, Double> destFrequency = computeFrequency(decryptedText);
+            double currentDeviation = Math.abs(formula.computeResult(destFrequency,
+                    representFrequency));
             if(currentDeviation < minDeviationValue) {
                 minDeviationValue = currentDeviation;
                 minDeviationKey = key;
             }
         }
-        int resultKey = minDeviationKey;
-        System.out.println("Found key is " + resultKey);
-        return new Result(Result.SUCCESS_MESSAGE_UNKNOWN_KEY.formatted(Actions.ANALYZE.getCommandName(), resultKey));
+        fileService.writeTo(destFile, caesarCipher.doCipher(srcText, -minDeviationKey, false));
+        return new Result(Result.SUCCESS_MESSAGE_UNKNOWN_KEY.formatted(Actions.ANALYZE.getCommandName(), minDeviationKey));
     }
 
     private Result executeWithoutRepresentative(Path srcFile, Path destFile) {
         List<String> srcText = fileService.readFrom(srcFile);
-        Map<Character, Double> srcFrequency = statistics.computeFrequency(srcText);
+        Map<Character, Double> srcFrequency = computeFrequency(srcText);
         List<Map.Entry<Character, Double>> sortedFrequency = getSortedList(srcFrequency);
-        int resultKey = computeKey(sortedFrequency);
-        caesarCipher.doCipher(srcText, resultKey, false);
-        System.out.println("Key is " + resultKey);
-        System.out.println("Sorted frequency is " + sortedFrequency);
+        int resultKey = computeKeyBySpace(sortedFrequency);
+        List<String> decodedText = caesarCipher.doCipher(srcText, -resultKey, false);
+        fileService.writeTo(destFile, decodedText);
         return new Result(Result.SUCCESS_MESSAGE_UNKNOWN_KEY.formatted(Actions.ANALYZE.getCommandName(), resultKey));
     }
 
-    private int computeKey(List<Map.Entry<Character, Double>> sortedFrequency) {
-        char resultChar = sortedFrequency.get(0).getKey();
-        int resultCharIdx = Const.ALPHABET_INDEXES.get(resultChar);
+    public Map<Character, Double> computeFrequency(List<String> text) {
+        Map<Character, Double> frequencyMap = new HashMap<>();
+        int thousandsCnt = 0;
+
+        try(BufferedReader bufferedReader = new BufferedReader(new CharArrayReader(text.toString().toLowerCase().toCharArray()))) {
+            while(bufferedReader.ready()) {
+                char[] buffer = new char[STATISTICS_RANGE];
+                int charsRead = bufferedReader.read(buffer);
+                if(charsRead < STATISTICS_RANGE) {
+                    continue;
+                }
+                thousandsCnt++;
+                putUniqueSymbols(buffer, frequencyMap);
+            }
+            if(thousandsCnt < 1) {
+                throw new AppException("Cannot provide statistics since text size < 1 000");
+            } else if(thousandsCnt > 1) {
+                for(Map.Entry<Character, Double> entry : frequencyMap.entrySet()) {
+                    entry.setValue(entry.getValue() * ONE_HUNDRED_PERCENT / (thousandsCnt * STATISTICS_RANGE));
+                }
+            }
+        } catch(Exception e) {
+            throw new AppException(e.getMessage(), e.getCause());
+        }
+
+        return frequencyMap;
+    }
+
+    private void putUniqueSymbols(char[] buffer, Map<Character, Double> frequencyMap) {
+        for(char ch : buffer) {
+            frequencyMap.put(ch, getKeyCount(frequencyMap, ch));
+        }
+    }
+
+    private int computeKeyBySpace(List<Map.Entry<Character, Double>> sortedFrequency) {
+        char mostFrequentChar = sortedFrequency.get(0).getKey();
+        int mostFrequentCharIdx = Const.ALPHABET_INDEXES.get(mostFrequentChar);
         int spaceIdx = Const.ALPHABET_INDEXES.get(' ');
-        return computeOffset(resultCharIdx, spaceIdx);
+        return computeOffset(mostFrequentCharIdx, spaceIdx);
     }
 
     private int computeOffset(int resultCharIdx, int spaceIdx) {

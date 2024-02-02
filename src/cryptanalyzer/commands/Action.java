@@ -4,6 +4,8 @@ import cryptanalyzer.FileService;
 import cryptanalyzer.entity.Result;
 import cryptanalyzer.utils.CaesarCipher;
 
+import java.util.Map;
+
 public abstract class Action {
     protected final CaesarCipher caesarCipher;
     protected final FileService fileService;
@@ -14,4 +16,9 @@ public abstract class Action {
     }
 
     public abstract Result execute(String[] params);
+
+    protected <K, V extends Number> double getKeyCount(Map<K, V> map, K wordBegin) {
+        return map.containsKey(wordBegin) ? (Double) map.get(wordBegin) + 1 : 1;
+    }
+
 }

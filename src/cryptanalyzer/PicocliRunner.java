@@ -25,9 +25,14 @@ public class PicocliRunner implements Runnable {
         processInput("encode", src, dest, key);
     }
 
-    private void processInput(String... args) {
-        Result result = cryptController.run(args);
-        System.out.println(result);
+    @Command(name = "decrypt", description = "Decrypt from file to file using statistical analysis")
+        // |3|
+    void decrypt(
+            @Parameters(paramLabel = "<src file>", description = "source file with encrypted text") String src,
+            @Parameters(paramLabel = "<dest file>", description = "dest file which should have decrypted text") String dest,
+            @Parameters(paramLabel = "<key>", description = "key for encryption") String key) {
+        processInput("decode", src, dest, key);
+
     }
 
     @Command(name = "brute force", description = "Decrypt from file to file using brute force")
@@ -50,14 +55,9 @@ public class PicocliRunner implements Runnable {
     }
 
 
-    @Command(name = "decrypt", description = "Decrypt from file to file using statistical analysis")
-        // |3|
-    void decrypt(
-            @Parameters(paramLabel = "<src file>", description = "source file with encrypted text") String src,
-            @Parameters(paramLabel = "<dest file>", description = "dest file which should have decrypted text") String dest,
-            @Parameters(paramLabel = "<key>", description = "key for encryption") String key) {
-        processInput("decode", src, dest, key);
-
+    private void processInput(String... args) {
+        Result result = cryptController.run(args);
+        System.out.println(result);
     }
 
     @Override

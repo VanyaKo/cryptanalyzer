@@ -1,14 +1,12 @@
 package cryptanalyzer.commands;
 
-import cryptanalyzer.FileService;
-import cryptanalyzer.consts.Actions;
+import cryptanalyzer.entity.Actions;
 import cryptanalyzer.entity.Result;
-import cryptanalyzer.utils.CaesarCipher;
 
 import java.nio.file.Path;
 import java.util.List;
 
-public class Decoder extends Action{
+public class Decoder extends Action {
     @Override
     public Result execute(String[] params) {
         Path srcPath = fileService.getPath(params[0]);
@@ -19,6 +17,6 @@ public class Decoder extends Action{
         List<String> cipheredText = caesarCipher.doCipher(srcText, key, false);
         fileService.writeTo(destPath, cipheredText);
 
-        return new Result(Result.SUCCESS_MESSAGE_KNOWN_KEY.formatted(Actions.DECRYPT.getCommandName()));
+        return new Result(Result.SUCCESS_MESSAGE_KNOWN_KEY.formatted(Actions.DECODE.getCommandName()));
     }
 }
