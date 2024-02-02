@@ -8,8 +8,8 @@ import cryptanalyzer.commands.Encoder;
 import cryptanalyzer.exception.AppException;
 
 public enum Actions {
-    ENCODE(new Encoder(), "Encoding"),
-    DECODE(new Decoder(), "Decoding"),
+    ENCRYPT(new Encoder(), "Encoding"),
+    DECRYPT(new Decoder(), "Decoding"),
     BRUTE_FORCE(new BruteForce(), "Brute force"),
     ANALYZE(new Analyzer(), "Statistical analysis");
 

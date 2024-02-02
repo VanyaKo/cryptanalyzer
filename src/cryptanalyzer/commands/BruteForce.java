@@ -4,6 +4,7 @@ import cryptanalyzer.FileService;
 import cryptanalyzer.consts.Actions;
 import cryptanalyzer.consts.Const;
 import cryptanalyzer.entity.Result;
+import cryptanalyzer.exception.AppException;
 import cryptanalyzer.utils.CaesarCipher;
 
 import java.io.BufferedReader;
@@ -17,15 +18,7 @@ import java.util.Map;
 import java.util.StringTokenizer;
 import java.util.TreeMap;
 
-public class BruteForce implements Action {
-    private final CaesarCipher caesarCipher;
-    private final FileService fileService;
-
-    public BruteForce() {
-        caesarCipher = new CaesarCipher();
-        fileService = new FileService();
-    }
-
+public class BruteForce extends Action {
     @Override
     public Result execute(String[] params) {
         Path srcFile = Path.of(params[0]);
@@ -42,20 +35,20 @@ public class BruteForce implements Action {
      */
     private Result executeWithRepresentative(Path srcFile, Path representFile, Path destFile) {
         Map<String, Integer> wordBeginsRepresentativeMap = new TreeMap<>();
-        String representText = fileService.readFrom(representFile);
+        List<String> representText = fileService.readFrom(representFile);
         initMap(wordBeginsRepresentativeMap, representText);
         List<Map.Entry<String, Integer>> sortedRepresentative = getSortedList(wordBeginsRepresentativeMap);
         TreeMap<Integer, Integer> scorePerKey = new TreeMap<>(Comparator.reverseOrder());
-        String srcText = fileService.readFrom(srcFile);
+        List<String> srcText = fileService.readFrom(srcFile);
         for(int key = 0; key < Const.ALPHABET.length; key++) {
-            String decryptedText = caesarCipher.doCipher(srcText, -key, false);
+            List<String> decryptedText = caesarCipher.doCipher(srcText, -key, false);
             Map<String, Integer> wordBeginsBruteForceMap = new TreeMap<>();
             initMap(wordBeginsBruteForceMap, decryptedText);
             List<Map.Entry<String, Integer>> sortedBruteForce = getSortedList(wordBeginsBruteForceMap);
             addScore(scorePerKey, key, sortedRepresentative, sortedBruteForce);
         }
         int resultKey = scorePerKey.firstEntry().getValue();
-        String resultText = caesarCipher.doCipher(srcText, resultKey, false);
+        List<String> resultText = caesarCipher.doCipher(srcText, resultKey, false);
         fileService.writeTo(destFile, resultText);
         return new Result(Result.SUCCESS_MESSAGE_UNKNOWN_KEY.formatted(Actions.BRUTE_FORCE.getCommandName(), resultKey));
     }
@@ -79,16 +72,18 @@ public class BruteForce implements Action {
                 .toList();
     }
 
-    private void initMap(Map<String, Integer> map, String text) {
-        StringTokenizer tokenizer = new StringTokenizer(text, " ");
-        while(tokenizer.hasMoreTokens()) {
-            String word = tokenizer.nextToken();
-            if(word.length() >= 3) {
-                String wordBegin = word.toLowerCase().substring(0, 3);
-                if(map.containsKey(wordBegin)) {
-                    map.put(wordBegin, map.get(wordBegin) + 1);
-                } else {
-                    map.put(wordBegin, 1);
+    private void initMap(Map<String, Integer> map, List<String> text) {
+        for(String line : text) {
+            StringTokenizer tokenizer = new StringTokenizer(line, " ");
+            while(tokenizer.hasMoreTokens()) {
+                String word = tokenizer.nextToken();
+                if(word.length() >= 3) {
+                    String wordBegin = word.toLowerCase().substring(0, 3);
+                    if(map.containsKey(wordBegin)) {
+                        map.put(wordBegin, map.get(wordBegin) + 1);
+                    } else {
+                        map.put(wordBegin, 1);
+                    }
                 }
             }
         }
@@ -96,8 +91,8 @@ public class BruteForce implements Action {
 
     private Result executeWithoutRepresentative(Path srcFile, Path destFile) {
         for(int key = 1; key < Const.ALPHABET.length; key++) {
-            String srcText = fileService.readFrom(srcFile);
-            String decodedText = caesarCipher.doCipher(srcText, -key, false);
+            List<String> srcText = fileService.readFrom(srcFile);
+            List<String> decodedText = caesarCipher.doCipher(srcText, -key, false);
             fileService.writeTo(destFile, decodedText);
             if(keyIsValidated(destFile)) {
                 return new Result(Result.SUCCESS_MESSAGE_UNKNOWN_KEY.formatted(Actions.BRUTE_FORCE.getCommandName(), key));
@@ -123,7 +118,7 @@ public class BruteForce implements Action {
             }
             return true;
         } catch(IOException e) {
-            throw new RuntimeException(e);
+            throw new AppException(e.getMessage(), e.getCause());
         }
     }
 

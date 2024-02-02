@@ -2,30 +2,29 @@ package cryptanalyzer.utils;
 
 import cryptanalyzer.consts.Const;
 import cryptanalyzer.exception.AppException;
-import cryptanalyzer.model.CryptModel;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
 public class CaesarCipher {
-    public String doCipher(String srcText, int key, boolean isDecodeMode) {
-        StringBuilder cipheredText = new StringBuilder();
-        for(char srcChar : srcText.toLowerCase().toCharArray()) {
-            Integer srcCharIdx = Const.ALPHABET_INDEXES.get(srcChar);
-            if(srcCharIdx == null) {
-                if(isDecodeMode) {
-                    throw new AppException("Char " + srcChar + " does not exist in the alphabet");
+    public List<String> doCipher(List<String> srcText, int key, boolean isDecodeMode) {
+        List<String> cipheredText = new ArrayList<>();
+        for(String line : srcText) {
+            StringBuilder resultLine = new StringBuilder();
+            for(char srcChar : line.toLowerCase().toCharArray()) {
+                Integer srcCharIdx = Const.ALPHABET_INDEXES.get(srcChar);
+                if(srcCharIdx == null) {
+                    if(isDecodeMode) {
+                        throw new AppException("Char " + srcChar + " does not exist in the alphabet");
+                    }
+                    continue;
                 }
-                continue;
+                int destCharIdx = getCipheredChar(srcCharIdx, key);
+                resultLine.append(Const.ALPHABET[destCharIdx]);
             }
-            int destCharIdx = getCipheredChar(srcCharIdx, key);
-            cipheredText.append(Const.ALPHABET[destCharIdx]);
+            cipheredText.add(resultLine.toString());
         }
-        return cipheredText.toString();
+        return cipheredText;
     }
 
     private int getCipheredChar(int idx, int key) {

@@ -13,7 +13,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-public class Analyzer implements Action {
+public class Analyzer extends Action {
     private final CaesarCipher caesarCipher;
     private final FileService fileService;
     private final Statistics statistics;
@@ -41,15 +41,15 @@ public class Analyzer implements Action {
 
 
     private Result executeWithRepresentative(Path srcFile, Path representFile, Path destFile) {
-        String representText = fileService.readFrom(representFile);
+        List<String> representText = fileService.readFrom(representFile);
         Map<Character, Double> representFrequency = statistics.computeFrequency(representText);
         SumOfSquaredDeviations formula = new SumOfSquaredDeviations();
-        String decryptedText = null;
+        List<String> decryptedText = null;
 
         int minDeviationKey = 0;
         double minDeviationValue = Double.MAX_VALUE;
         for(int key = 0; key < Const.ALPHABET.length; key++) {
-            String srcText = fileService.readFrom(srcFile);
+            List<String> srcText = fileService.readFrom(srcFile);
             decryptedText = caesarCipher.doCipher(srcText, -key, false);
             Map<Character, Double> destFrequency = statistics.computeFrequency(decryptedText);
             double decodedMetric = formula.computeResult(representFrequency, destFrequency);
@@ -66,7 +66,7 @@ public class Analyzer implements Action {
     }
 
     private Result executeWithoutRepresentative(Path srcFile, Path destFile) {
-        String srcText = fileService.readFrom(srcFile);
+        List<String> srcText = fileService.readFrom(srcFile);
         Map<Character, Double> srcFrequency = statistics.computeFrequency(srcText);
         List<Map.Entry<Character, Double>> sortedFrequency = getSortedList(srcFrequency);
         int resultKey = computeKey(sortedFrequency);
