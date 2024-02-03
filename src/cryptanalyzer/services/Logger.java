@@ -6,7 +6,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Logger {
-    public static final String PATH_TO_LOG_FILE = "logs/%s.log";
+    public static final String PATH_TO_LOG_DIR = "logs";
+    public static final String PATH_TO_LOG_FILE = PATH_TO_LOG_DIR + "/%s.log";
     private final FileService fileService;
 
     public Logger(FileService fileService) {
@@ -16,7 +17,8 @@ public class Logger {
     public void logException(Exception e) {
         DateTimeFormatter logFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy'T'hh-mm-ss");
         String path = String.format(PATH_TO_LOG_FILE, LocalDateTime.now().format(logFormatter));
-        fileService.createFile(path);
+        fileService.createPath(PATH_TO_LOG_DIR, false);
+        fileService.createPath(path, true);
         fileService.writeTo(fileService.getPath(path), getList(e));
     }
 

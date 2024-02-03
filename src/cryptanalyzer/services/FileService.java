@@ -28,9 +28,16 @@ public class FileService {
         }
     }
 
-    public void createFile(String path) {
+    public void createPath(String inputPath, boolean isFile) {
         try {
-            Files.createFile(Path.of(path));
+            Path path = Path.of(inputPath);
+            if(!Files.exists(path)) {
+                if(isFile) {
+                    Files.createFile(path);
+                } else {
+                    Files.createDirectories(path);
+                }
+            }
         } catch(IOException e) {
             throw new AppException(e.getMessage(), e.getCause());
         }
