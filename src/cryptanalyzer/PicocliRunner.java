@@ -1,7 +1,6 @@
 package cryptanalyzer;
 
 import cryptanalyzer.controllers.CryptController;
-import cryptanalyzer.entities.Result;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Model.CommandSpec;
@@ -22,7 +21,7 @@ public class PicocliRunner implements Runnable {
             @Parameters(paramLabel = "<src file>", description = "source file with text to encrypt") String src,
             @Parameters(paramLabel = "<dest file>", description = "dest file which should have encrypted text") String dest,
             @Parameters(paramLabel = "<key>", description = "key for encryption") String key) {
-        processInput("encode", src, dest, key);
+        redirectInput("encode", src, dest, key);
     }
 
     @Command(name = "decrypt", description = "Decrypt from file to file using statistical analysis")
@@ -31,7 +30,7 @@ public class PicocliRunner implements Runnable {
             @Parameters(paramLabel = "<src file>", description = "source file with encrypted text") String src,
             @Parameters(paramLabel = "<dest file>", description = "dest file which should have decrypted text") String dest,
             @Parameters(paramLabel = "<key>", description = "key for encryption") String key) {
-        processInput("decode", src, dest, key);
+        redirectInput("decode", src, dest, key);
 
     }
 
@@ -41,7 +40,7 @@ public class PicocliRunner implements Runnable {
             @Parameters(paramLabel = "<src file>", description = "source file with encrypted text") String src,
             @Option(names = {"-r", "--representative"}, description = "file with unencrypted representative text") String representative,
             @Parameters(paramLabel = "<dest file>", description = "dest file which should have decrypted text") String dest) {
-        processInput("brute_force", src, representative, dest);
+        redirectInput("brute_force", src, representative, dest);
     }
 
     @Command(name = "statistical decryption", description = "Decrypt from file to file using statistical analysis")
@@ -50,14 +49,13 @@ public class PicocliRunner implements Runnable {
             @Parameters(paramLabel = "<src file>", description = "source file with encrypted text") String src,
             @Option(names = {"-r", "--representative"}, description = "file with unencrypted representative text") String representative,
             @Parameters(paramLabel = "<dest file>", description = "dest file which should have decrypted text") String dest) {
-        processInput("analyze", src, representative, dest);
+        redirectInput("analyze", src, representative, dest);
 
     }
 
 
-    private void processInput(String... args) {
-        Result result = cryptController.run(args);
-        System.out.println(result);
+    private void redirectInput(String... args) {
+        cryptController.run(args);
     }
 
     @Override

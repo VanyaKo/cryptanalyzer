@@ -2,7 +2,7 @@ package cryptanalyzer.commands;
 
 import cryptanalyzer.consts.Const;
 import cryptanalyzer.entities.ActionType;
-import cryptanalyzer.entities.Result;
+import cryptanalyzer.entities.CryptResult;
 
 import java.nio.file.Path;
 import java.util.Collections;
@@ -14,7 +14,7 @@ import java.util.TreeMap;
 
 public class BruteForce extends Action {
     @Override
-    public Result execute(String[] params) {
+    public CryptResult execute(String[] params) {
         Path srcFile = Path.of(params[0]);
         Path destFile = Path.of(params[2]);
         if(params[1] != null) {
@@ -27,7 +27,7 @@ public class BruteForce extends Action {
     /**
      * Based on a dictionary of the most frequent word beginnings (first 3 letters)
      */
-    private Result executeWithRepresentative(Path srcFile, Path representFile, Path destFile) {
+    private CryptResult executeWithRepresentative(Path srcFile, Path representFile, Path destFile) {
         List<String> representText = fileService.readFrom(representFile);
         List<String> srcText = fileService.readFrom(srcFile);
         Map<String, Integer> wordBeginsRepresentativeMap = getWordBeginFrequencyMap(representText);
@@ -42,7 +42,7 @@ public class BruteForce extends Action {
         int resultKey = scorePerKey.firstEntry().getValue();
         List<String> resultText = caesarCipher.doCipher(srcText, resultKey, false);
         fileService.writeTo(destFile, resultText);
-        return new Result(Result.SUCCESS_MESSAGE_UNKNOWN_KEY.formatted(ActionType.BRUTE_FORCE.getCommandName(), resultKey));
+        return new CryptResult(CryptResult.SUCCESS_MESSAGE_UNKNOWN_KEY.formatted(ActionType.BRUTE_FORCE.getCommandName(), resultKey));
     }
 
     private void addScore(Map<Integer, Integer> scorePerKey, int key,
@@ -79,16 +79,16 @@ public class BruteForce extends Action {
         return map;
     }
 
-    private Result executeWithoutRepresentative(Path srcFile, Path destFile) {
+    private CryptResult executeWithoutRepresentative(Path srcFile, Path destFile) {
         for(int key = 1; key < Const.ALPHABET.length; key++) {
             List<String> srcText = fileService.readFrom(srcFile);
             List<String> decodedText = caesarCipher.doCipher(srcText, -key, false);
             if(keyIsValidated(decodedText)) {
                 fileService.writeTo(destFile, decodedText);
-                return new Result(Result.SUCCESS_MESSAGE_UNKNOWN_KEY.formatted(ActionType.BRUTE_FORCE.getCommandName(), key));
+                return new CryptResult(CryptResult.SUCCESS_MESSAGE_UNKNOWN_KEY.formatted(ActionType.BRUTE_FORCE.getCommandName(), key));
             }
         }
-        return new Result(Result.FAIL_MESSAGE.formatted(ActionType.BRUTE_FORCE.getCommandName()));
+        return new CryptResult(CryptResult.FAIL_MESSAGE.formatted(ActionType.BRUTE_FORCE.getCommandName()));
     }
 
     private boolean keyIsValidated(List<String> destFile) {

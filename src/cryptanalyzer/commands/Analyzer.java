@@ -2,7 +2,7 @@ package cryptanalyzer.commands;
 
 import cryptanalyzer.consts.Const;
 import cryptanalyzer.entities.ActionType;
-import cryptanalyzer.entities.Result;
+import cryptanalyzer.entities.CryptResult;
 import cryptanalyzer.services.SumOfSquaredDeviations;
 import cryptanalyzer.exceptions.AppException;
 
@@ -19,7 +19,7 @@ import static cryptanalyzer.consts.Const.STATISTICS_RANGE;
 
 public class Analyzer extends Action {
     @Override
-    public Result execute(String[] params) {
+    public CryptResult execute(String[] params) {
 
         String pathFrom = params[0];
         String pathTo = params[2];
@@ -34,7 +34,7 @@ public class Analyzer extends Action {
     }
 
 
-    private Result executeWithRepresentative(Path srcFile, Path representFile, Path destFile) {
+    private CryptResult executeWithRepresentative(Path srcFile, Path representFile, Path destFile) {
         List<String> srcText = fileService.readFrom(srcFile);
         List<String> representText = fileService.readFrom(representFile);
         Map<Character, Double> representFrequency = computeFrequency(representText);
@@ -54,17 +54,17 @@ public class Analyzer extends Action {
             }
         }
         fileService.writeTo(destFile, caesarCipher.doCipher(srcText, -minDeviationKey, false));
-        return new Result(Result.SUCCESS_MESSAGE_UNKNOWN_KEY.formatted(ActionType.ANALYZE.getCommandName(), minDeviationKey));
+        return new CryptResult(CryptResult.SUCCESS_MESSAGE_UNKNOWN_KEY.formatted(ActionType.ANALYZE.getCommandName(), minDeviationKey));
     }
 
-    private Result executeWithoutRepresentative(Path srcFile, Path destFile) {
+    private CryptResult executeWithoutRepresentative(Path srcFile, Path destFile) {
         List<String> srcText = fileService.readFrom(srcFile);
         Map<Character, Double> srcFrequency = computeFrequency(srcText);
         List<Map.Entry<Character, Double>> sortedFrequency = getSortedList(srcFrequency);
         int resultKey = computeKeyBySpace(sortedFrequency);
         List<String> decodedText = caesarCipher.doCipher(srcText, -resultKey, false);
         fileService.writeTo(destFile, decodedText);
-        return new Result(Result.SUCCESS_MESSAGE_UNKNOWN_KEY.formatted(ActionType.ANALYZE.getCommandName(), resultKey));
+        return new CryptResult(CryptResult.SUCCESS_MESSAGE_UNKNOWN_KEY.formatted(ActionType.ANALYZE.getCommandName(), resultKey));
     }
 
     public Map<Character, Double> computeFrequency(List<String> text) {

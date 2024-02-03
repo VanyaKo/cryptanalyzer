@@ -27,4 +27,12 @@ public class FileService {
             throw new AppException("Cannot write data to \"" + file.getFileName() + "\" file", e.getCause());
         }
     }
+
+    public void createFile(String path) {
+        try {
+            Files.createFile(Path.of(path));
+        } catch(IOException e) {
+            throw new AppException(e.getMessage(), e.getCause());
+        }
+    }
 }

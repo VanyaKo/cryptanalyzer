@@ -1,6 +1,6 @@
 package cryptanalyzer.entities;
 
-public class Result {
+public class CryptResult {
     public static final String SUCCESS_MESSAGE_UNKNOWN_KEY = "%s is successfully completed. Found key is %d.";
     public static final String SUCCESS_MESSAGE_KNOWN_KEY = "%s is successfully completed.";
     public static final String FAIL_MESSAGE = "%s is failed.";
@@ -11,7 +11,7 @@ public class Result {
         return message;
     }
 
-    public Result(String message) {
+    public CryptResult(String message) {
         this.message = message;
     }
 }
