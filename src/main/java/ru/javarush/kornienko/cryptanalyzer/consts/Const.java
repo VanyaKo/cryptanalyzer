@@ -29,6 +29,7 @@ public class Const {
     public static final List<Character> FORBIDDEN_START_PUNCTUATION = new ArrayList<>(
             List.of('.', ',', '»', ':', '!', '?'));
     public static final char FORBIDDEN_END_PUNCTUATION_CHAR = '«';
+    public static final int WORD_BEGINNING_LENGTH = 3;
     public static final int STATISTICS_RANGE = 1_000;
     public static final int ONE_HUNDRED_PERCENT = 100;
 }

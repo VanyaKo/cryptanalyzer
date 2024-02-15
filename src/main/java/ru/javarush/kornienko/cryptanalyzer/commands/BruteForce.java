@@ -14,6 +14,7 @@ import java.util.StringTokenizer;
 import java.util.TreeMap;
 
 public class BruteForce extends Action {
+
     @Override
     public CryptResult execute(String[] params) {
         Path srcFile = Path.of(params[0]);
@@ -26,7 +27,7 @@ public class BruteForce extends Action {
     }
 
     /**
-     * Based on a dictionary of the most frequent word beginnings (first 3 letters)
+     * Based on a dictionary of the most frequent word beginnings (first N letters)
      */
     private CryptResult executeWithRepresentative(Path srcFile, Path representFile, Path destFile) {
         List<String> representText = fileService.readFrom(representFile);
@@ -71,8 +72,8 @@ public class BruteForce extends Action {
             StringTokenizer tokenizer = new StringTokenizer(line, " ");
             while(tokenizer.hasMoreTokens()) {
                 String word = tokenizer.nextToken();
-                if(word.length() >= 3) {
-                    String wordBegin = word.toLowerCase().substring(0, 3);
+                if(word.length() >= Const.WORD_BEGINNING_LENGTH) {
+                    String wordBegin = word.toLowerCase().substring(0, Const.WORD_BEGINNING_LENGTH);
                     map.put(wordBegin, (int) getKeyCount(map, wordBegin));
                 }
             }
