@@ -1,6 +1,5 @@
 package ru.javarush.kornienko.cryptanalyzer.commands;
 
-
 import ru.javarush.kornienko.cryptanalyzer.consts.Const;
 import ru.javarush.kornienko.cryptanalyzer.entities.ActionType;
 import ru.javarush.kornienko.cryptanalyzer.entities.CryptResult;
